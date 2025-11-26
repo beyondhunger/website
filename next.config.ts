@@ -1,8 +1,10 @@
-import type { NextConfig } from "next";
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  output: "standalone",
 
-const nextConfig: NextConfig = {
-  reactCompiler: true,  // SAFE
-  // No experimental flags needed for Prisma
+  experimental: {
+    serverMinification: false,
+  },
 };
 
-export default nextConfig;
+module.exports = nextConfig;
