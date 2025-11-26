@@ -7,56 +7,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id           String    @id @default(cuid())
-  email        String    @unique
-  name         String?
-  passwordHash String
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
-  bookings     Booking[]
-}
-
-model Service {
-  id          String    @id @default(cuid())
-  name        String
-  slug        String    @unique
-  description String?
-  price       Int
-  currency    String    @default("GBP")
-  isActive    Boolean   @default(true)
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  bookings    Booking[]
-}
-
-model Booking {
-  id        String        @id @default(cuid())
-  userId    String
-  serviceId String
-  date      DateTime
-  location  String
-  status    BookingStatus @default(PENDING_PAYMENT)
-  createdAt DateTime      @default(now())
-  updatedAt DateTime      @updatedAt
-  service   Service       @relation(fields: [serviceId], references: [id])
-  user      User          @relation(fields: [userId], references: [id])
-  payment   Payment?
-}
-
-model Payment {
-  id                String        @id @default(cuid())
-  bookingId         String        @unique
-  provider          String
-  providerPaymentId String
-  amount            Int
-  currency          String        @default("GBP")
-  status            PaymentStatus @default(PENDING)
-  createdAt         DateTime      @default(now())
-  updatedAt         DateTime      @updatedAt
-  booking           Booking       @relation(fields: [bookingId], references: [id])
-}
-
 enum BookingStatus {
   PENDING_PAYMENT
   CONFIRMED
@@ -69,4 +19,61 @@ enum PaymentStatus {
   SUCCEEDED
   FAILED
   REFUNDED
+}
+
+model User {
+  id           String    @id @default(cuid())
+  email        String    @unique
+  name         String?
+  passwordHash String
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  bookings     Booking[]
+}
+
+model Service {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  description String?
+  price       Int
+  currency    String   @default("GBP")
+  isActive    Boolean  @default(true)
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  bookings    Booking[]
+}
+
+model Booking {
+  id        String        @id @default(cuid())
+  userId    String
+  serviceId String
+  date      DateTime
+  location  String
+  status    BookingStatus @default(PENDING_PAYMENT)
+
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  user      User          @relation(fields: [userId], references: [id])
+  service   Service       @relation(fields: [serviceId], references: [id])
+  payment   Payment?
+}
+
+model Payment {
+  id                String        @id @default(cuid())
+  bookingId         String        @unique
+  provider          String
+  providerPaymentId String?
+  amount            Int
+  currency          String        @default("GBP")
+  status            PaymentStatus @default(PENDING)
+
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  booking           Booking       @relation(fields: [bookingId], references: [id])
 }

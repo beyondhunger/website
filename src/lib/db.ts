@@ -4,13 +4,11 @@ const globalForPrisma = global as unknown as {
   prisma?: PrismaClient;
 };
 
-// Create a normal Prisma client (classic stable Prisma 5)
-const prismaClient = () =>
+export const prisma =
+  globalForPrisma.prisma ||
   new PrismaClient({
-    log: ["warn", "error"],
+    log: ["error", "warn"],
   });
-
-export const prisma = globalForPrisma.prisma ?? prismaClient();
 
 if (process.env.NODE_ENV !== "production") {
   globalForPrisma.prisma = prisma;
