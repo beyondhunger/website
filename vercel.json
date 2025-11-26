@@ -1,7 +1,10 @@
 {
   "functions": {
-    "src/app/api/**/route.[tj]s": {
-      "includeFiles": "node_modules/.prisma/client/**"
+    "src/app/api/**/route.js": {
+      "includeFiles": "node_modules/.prisma/client/**/*"
+    },
+    "src/app/api/**/route.ts": {
+      "includeFiles": "node_modules/.prisma/client/**/*"
     }
   }
 }
