@@ -1,4 +1,4 @@
-// src/app/api/auth/signup/route.ts
+export const dynamic = "force-dynamic";
 
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
@@ -6,12 +6,7 @@ import { hashPassword } from "@/lib/auth";
 
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json();
-    const { name, email, password } = body as {
-      name?: string;
-      email?: string;
-      password?: string;
-    };
+    const { email, password, name } = await req.json();
 
     if (!email || !password) {
       return NextResponse.json(
@@ -20,38 +15,35 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // 1) Already user undā? -> conflict
-    const existing = await prisma.user.findUnique({
-      where: { email },
+    const exists = await prisma.user.findUnique({
+      where: { email }
     });
 
-    if (existing) {
+    if (exists) {
       return NextResponse.json(
-        { error: "Account already exists. Please login." },
-        { status: 409 }
+        { error: "User already exists" },
+        { status: 400 }
       );
     }
 
-    // 2) Password hash chesi kotha user create cheyyali
     const passwordHash = await hashPassword(password);
 
     const user = await prisma.user.create({
       data: {
         email,
-        name: name || null,
         passwordHash,
-      },
+        name
+      }
     });
 
-    // 3) Response (password hash return cheyyakunda)
     return NextResponse.json(
       {
         user: {
           id: user.id,
           email: user.email,
-          name: user.name,
+          name: user.name
         },
-        message: "Signup successful",
+        message: "Signup successful"
       },
       { status: 201 }
     );

@@ -1,24 +1,20 @@
-import { NextRequest, NextResponse } from "next/server";
+export const dynamic = "force-dynamic";
+
 import { prisma } from "@/lib/db";
+import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json();
-
-    const { userId, serviceId, date, location } = body as {
-      userId?: string;
-      serviceId?: string;
-      date?: string;
-      location?: string;
-    };
+    const { userId, serviceId, date, location } = await req.json();
 
     if (!userId || !serviceId || !date || !location) {
       return NextResponse.json(
-        { error: "userId, serviceId, date and location are required" },
+        { error: "Missing fields" },
         { status: 400 }
       );
     }
 
+    // 1️⃣ Get service details (IMPORTANT)
     const service = await prisma.service.findUnique({
       where: { id: serviceId }
     });
@@ -30,59 +26,32 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const bookingDate = new Date(date);
-
+    // 2️⃣ Create booking
     const booking = await prisma.booking.create({
       data: {
         userId,
         serviceId,
-        date: bookingDate,
+        date,
         location
-      },
-      include: {
-        service: true
       }
     });
 
-    return NextResponse.json(
-      {
-        booking,
-        message: "Booking created with status PENDING_PAYMENT"
-      },
-      { status: 201 }
-    );
-  } catch (err) {
-    console.error("POST /api/bookings error:", err);
-    return NextResponse.json(
-      { error: "Failed to create booking" },
-      { status: 500 }
-    );
-  }
-}
-
-export async function GET(req: NextRequest) {
-  try {
-    const { searchParams } = new URL(req.url);
-    const userId = searchParams.get("userId");
-
-    if (!userId) {
-      return NextResponse.json(
-        { error: "userId query param is required" },
-        { status: 400 }
-      );
-    }
-
-    const bookings = await prisma.booking.findMany({
-      where: { userId },
-      orderBy: { date: "desc" },
-      include: { service: true }
+    // 3️⃣ Create payment entry with correct amount
+    await prisma.payment.create({
+      data: {
+        bookingId: booking.id,
+        provider: "stripe",
+        providerPaymentId: "",
+        amount: service.price,   //  <-- FIXED
+        currency: "GBP"
+      }
     });
 
-    return NextResponse.json(bookings, { status: 200 });
-  } catch (err) {
-    console.error("GET /api/bookings error:", err);
+    return NextResponse.json({ booking });
+  } catch (error) {
+    console.error(error);
     return NextResponse.json(
-      { error: "Failed to load bookings" },
+      { error: "Failed to create booking" },
       { status: 500 }
     );
   }

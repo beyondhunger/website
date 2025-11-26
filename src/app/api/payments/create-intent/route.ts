@@ -1,22 +1,23 @@
+export const dynamic = "force-dynamic";
+
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { stripe } from "@/lib/stripe";
 
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json();
-    const { bookingId } = body as { bookingId?: string };
+    const { bookingId } = await req.json();
 
     if (!bookingId) {
       return NextResponse.json(
-        { error: "bookingId is required" },
+        { error: "Missing bookingId" },
         { status: 400 }
       );
     }
 
     const booking = await prisma.booking.findUnique({
       where: { id: bookingId },
-      include: { service: true, payment: true }
+      include: { service: true },
     });
 
     if (!booking || !booking.service) {
@@ -26,43 +27,24 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const amount = booking.service.price;
-    const currency = booking.service.currency.toLowerCase();
-
-    const paymentIntent = await stripe.paymentIntents.create({
-      amount,
-      currency,
+    const intent = await stripe.paymentIntents.create({
+      amount: booking.service.price,
+      currency: "GBP",
       metadata: {
         bookingId: booking.id,
-        serviceName: booking.service.name
-      }
-    });
-
-    await prisma.payment.upsert({
-      where: { bookingId: booking.id },
-      update: {
-        provider: "stripe",
-        providerPaymentId: paymentIntent.id,
-        amount,
-        currency: booking.service.currency,
-        status: "PENDING"
       },
-      create: {
-        bookingId: booking.id,
-        provider: "stripe",
-        providerPaymentId: paymentIntent.id,
-        amount,
-        currency: booking.service.currency,
-        status: "PENDING"
-      }
     });
 
-    return NextResponse.json(
-      { clientSecret: paymentIntent.client_secret },
-      { status: 200 }
-    );
-  } catch (err) {
-    console.error("POST /api/payments/create-intent error:", err);
+    await prisma.payment.update({
+      where: { bookingId: booking.id },
+      data: { providerPaymentId: intent.id },
+    });
+
+    return NextResponse.json({
+      clientSecret: intent.client_secret,
+    });
+  } catch (error) {
+    console.error("Error creating payment intent:", error);
     return NextResponse.json(
       { error: "Failed to create payment intent" },
       { status: 500 }
