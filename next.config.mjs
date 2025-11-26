@@ -2,7 +2,8 @@
 const nextConfig = {
   experimental: {
     outputFileTracingIncludes: {
-      "node_modules/.prisma/client": ["./node_modules/.prisma/client/**/*"],
+      // Include Prisma engines in API routes
+      "src/app/api/**": ["./node_modules/.prisma/client/**/*"],
     },
   },
 };
