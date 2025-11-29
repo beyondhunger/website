@@ -3,6 +3,9 @@ export const dynamic = "force-dynamic";
 import { prisma } from "@/lib/db";
 import { NextRequest, NextResponse } from "next/server";
 
+const normalizePrice = (value: number) =>
+  value < 10 ? value * 100 : value;
+
 export async function POST(req: NextRequest) {
   try {
     const { userId, serviceId, date, location } = await req.json();
@@ -36,13 +39,15 @@ export async function POST(req: NextRequest) {
       }
     });
 
-    // 3️⃣ Create payment entry with correct amount
+    const normalizedPrice = normalizePrice(service.price);
+
+    // 3️⃣ Create payment entry with correct amount (Stripe expects minor units)
     await prisma.payment.create({
       data: {
         bookingId: booking.id,
         provider: "stripe",
         providerPaymentId: "",
-        amount: service.price,   //  <-- FIXED
+        amount: Math.round(normalizedPrice * 100),
         currency: "GBP"
       }
     });

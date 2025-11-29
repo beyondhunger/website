@@ -4,6 +4,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { stripe } from "@/lib/stripe";
 
+const normalizePrice = (value: number) =>
+  value < 10 ? value * 100 : value;
+
 export async function POST(req: NextRequest) {
   try {
     const { bookingId } = await req.json();
@@ -27,8 +30,10 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    const normalizedPrice = normalizePrice(booking.service.price);
+
     const intent = await stripe.paymentIntents.create({
-      amount: booking.service.price,
+      amount: Math.round(normalizedPrice * 100),
       currency: "GBP",
       metadata: {
         bookingId: booking.id,

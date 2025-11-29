@@ -3,11 +3,18 @@
 import { useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 
+const formatPrice = (value: number) => {
+  const normalized = value < 1 ? value * 100 : value;
+  return Number.isInteger(normalized)
+    ? normalized.toString()
+    : normalized.toFixed(2);
+};
+
 type Service = {
   id: string;
   name: string;
   description: string | null;
-  price: number;
+  price: number; // normalize before display/payment
   currency: string;
 };
 
@@ -130,7 +137,7 @@ export default function BookingInner() {
     }
   }
 
-  const priceDisplay = service != null ? (service.price / 100).toFixed(2) : null;
+  const priceDisplay = service ? formatPrice(service.price) : null;
 
   return (
     <section className="bg-white">

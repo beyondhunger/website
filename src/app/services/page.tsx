@@ -5,12 +5,19 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 
+const formatPrice = (value: number) => {
+  const normalized = value < 1 ? value * 100 : value;
+  return Number.isInteger(normalized)
+    ? normalized.toString()
+    : normalized.toFixed(2);
+};
+
 type Service = {
   id: string;
   name: string;
   slug: string;
   description: string | null;
-  price: number;      // minor units (e.g. 5000 = £50)
+  price: number;      // stored in GBP (e.g. 50 = £50)
   currency: string;
 };
 
@@ -62,8 +69,6 @@ export default function ServicesPage() {
         {!loading && !error && (
           <div className="mt-10 grid gap-6 md:grid-cols-3">
             {services.map((service) => {
-              const priceInPounds = (service.price / 100).toFixed(2);
-
               return (
                 <div
                   key={service.id}
@@ -81,7 +86,7 @@ export default function ServicesPage() {
                   <div className="mt-6 flex items-center justify-between">
                     <div>
                       <span className="text-xl font-bold text-primary">
-                        £{priceInPounds}
+                        £{formatPrice(service.price)}
                       </span>
                       <span className="ml-1 text-xs text-neutral-500">
                         {service.currency}
