@@ -18,13 +18,13 @@ export default function Navbar() {
   const pathname = usePathname();
 
   return (
-    <header className="sticky top-0 z-40 bg-primary text-white shadow">
+    <header className="sticky top-0 z-40 bg-primary shadow">
       {/* full-width nav bar with some vertical padding */}
       <div className="flex w-full items-center justify-between px-4 md:px-10 py-4">
         {/* LOGO – left corner, bigger */}
         <Link
           href="/"
-          className="font-extrabold text-3xl tracking-tight"
+          className="font-extrabold text-3xl tracking-tight text-white"
         >
           Beyond Hunger
         </Link>
@@ -39,7 +39,7 @@ export default function Navbar() {
                 "rounded-full px-4 py-1 text-sm font-medium transition",
                 pathname === link.href
                   ? "bg-white/90 text-primary"
-                  : "hover:bg-white/10"
+                  : "text-white hover:bg-primary-dark hover:text-white"
               )}
             >
               {link.label}
@@ -49,7 +49,7 @@ export default function Navbar() {
           {/* SINGLE LOGIN / SIGNUP BUTTON */}
           <Link
             href="/auth/login"
-            className="ml-4 rounded-full bg-white px-5 py-1.5 text-sm font-semibold text-primary shadow hover:bg-neutral-100"
+            className="ml-4 rounded-full bg-white px-5 py-1.5 text-sm font-semibold text-primary shadow hover:bg-primary hover:text-white"
           >
             Login / Signup
           </Link>
