@@ -59,19 +59,19 @@ export default function Navbar() {
             </Link>
           ))}
 
-          {/* SINGLE LOGIN / SIGNUP BUTTON */}
-          <Link
-            href="/auth/login"
-            className="ml-4 rounded-full bg-white px-5 py-1.5 text-sm font-semibold text-primary shadow hover:bg-primary hover:text-white"
-          >
-            Login / Signup
-          </Link>
-        </nav>
+        {/* SINGLE LOGIN / SIGNUP BUTTON */}
+        <Link
+          href="/auth/login"
+          className="ml-4 rounded-full bg-white px-5 py-1.5 text-sm font-semibold text-primary shadow hover:bg-primary hover:text-white"
+        >
+          Login / Signup
+        </Link>
+      </nav>
 
         {/* MOBILE LOGIN / SIGNUP QUICK CTA */}
         <Link
           href="/auth/login"
-          className="inline-flex items-center justify-center rounded-full border border-white/50 px-3.5 py-1 text-sm font-semibold text-white transition hover:bg-white/10 md:hidden"
+          className="inline-flex items-center justify-center rounded-full border border-white/50 px-5 py-2 text-base font-semibold text-white transition hover:bg-white/10 md:hidden"
         >
           Login
         </Link>
