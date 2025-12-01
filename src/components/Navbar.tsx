@@ -2,7 +2,7 @@
 
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import clsx from "clsx";
@@ -29,6 +29,30 @@ const mobileMenuItems: NavItem[] = [
 export default function Navbar() {
   const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [pressedMobileLink, setPressedMobileLink] = useState<string | null>(null);
+  const prevPathnameRef = useRef(pathname);
+
+  useEffect(() => {
+    if (!isMobileMenuOpen) return;
+    setPressedMobileLink(null);
+  }, [isMobileMenuOpen]);
+
+  useEffect(() => {
+    if (prevPathnameRef.current === pathname) return;
+    prevPathnameRef.current = pathname;
+    setIsMobileMenuOpen(false);
+    setPressedMobileLink(null);
+  }, [pathname]);
+
+  const handleMobileLinkClick = (href: string) => {
+    setPressedMobileLink(href);
+    if (href === pathname) {
+      setTimeout(() => {
+        setIsMobileMenuOpen(false);
+        setPressedMobileLink(null);
+      }, 180);
+    }
+  };
 
   return (
     <header className="sticky top-0 z-40 bg-primary shadow relative">
@@ -106,12 +130,14 @@ export default function Navbar() {
               <Link
                 key={item.href}
                 href={item.href}
-                onClick={() => setIsMobileMenuOpen(false)}
+                onClick={() => handleMobileLinkClick(item.href)}
                 className={clsx(
                   "w-full rounded-xl border border-primary/15 px-4 py-3 text-left transition-colors",
                   item.variant === "cta"
                     ? "bg-primary text-white hover:bg-primary-dark"
-                    : pathname === item.href
+                    : pressedMobileLink === item.href
+                      ? "bg-primary text-white"
+                      : pathname === item.href
                       ? "bg-primary/10 text-primary-dark hover:bg-primary/20"
                       : "text-primary hover:bg-primary/10"
                 )}
