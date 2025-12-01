@@ -124,14 +124,25 @@ export default function DashboardPage() {
   return (
     <section className="min-h-screen bg-gradient-to-b from-white via-primary/5 to-white py-12">
       <div className="mx-auto max-w-5xl px-4">
-        <header className="flex flex-col gap-4 overflow-hidden rounded-3xl bg-primary px-6 py-6 text-white shadow-lg shadow-primary/30 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex items-center gap-4">
-            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/20 text-xl font-semibold text-white shadow-lg shadow-primary/40">
-              {initials}
+        <header className="flex flex-col gap-6 overflow-hidden rounded-3xl bg-[#FF2121]/85 px-6 py-6 text-white shadow-lg shadow-primary/30 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-1 flex-col gap-4">
+            <div className="flex items-center gap-4">
+              <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-[#FF2121] text-2xl font-semibold text-white shadow-lg shadow-primary/50">
+                {initials}
+              </div>
+              <div>
+                <h1 className="text-2xl font-semibold text-white">
+                  {user.name || "Client"}
+                </h1>
+                <p className="text-sm text-white/80">{user.email}</p>
+              </div>
             </div>
-            <h1 className="text-2xl font-semibold text-white">
-              {user.name || "Client"}
-            </h1>
+
+            {user.id && (
+              <div className="rounded-full bg-white px-5 py-3 text-center text-sm font-semibold uppercase tracking-wide text-[#FF2121] shadow-lg shadow-primary/30">
+                Client ID: {user.id.slice(0, 8).toUpperCase()}
+              </div>
+            )}
           </div>
 
           <Link
@@ -147,14 +158,15 @@ export default function DashboardPage() {
         >
           {hasBookings && (
             <>
-              <StatCard label="Upcoming Bookings" value={upcomingCount} />
-              <StatCard label="Previous Bookings" value={previousCount} />
+              <StatCard label="Upcoming Bookings" value={upcomingCount} variant="filled" />
+              <StatCard label="Previous Bookings" value={previousCount} variant="filled" />
             </>
           )}
           <StatCard
             label="Status"
             value={upcomingCount > 0 ? "Active" : "No Active Bookings"}
             accent={statusAccent}
+            variant="outline"
           />
         </div>
 
@@ -184,15 +196,34 @@ export default function DashboardPage() {
   );
 }
 
-function StatCard({ label, value, accent = "default" }: { label: string; value: number | string; accent?: "default" | "success" | "muted" }) {
+function StatCard({
+  label,
+  value,
+  accent = "default",
+  variant = "filled"
+}: {
+  label: string;
+  value: number | string;
+  accent?: "default" | "success" | "muted";
+  variant?: "filled" | "outline";
+}) {
   const accentClasses = {
     default: "text-white",
     success: "text-emerald-200",
     muted: "text-white/80"
   }[accent];
 
+  if (variant === "outline") {
+    return (
+      <div className="rounded-2xl border-2 border-[#FF2121] bg-white px-6 py-5 text-[#FF2121] shadow-lg shadow-primary/20">
+        <p className="text-xs font-semibold uppercase tracking-wide text-[#FF2121]/70">{label}</p>
+        <p className="mt-2 text-3xl font-semibold">{value}</p>
+      </div>
+    );
+  }
+
   return (
-    <div className="rounded-2xl bg-primary px-6 py-5 text-white shadow-lg shadow-primary/40">
+    <div className="rounded-2xl bg-[#FF2121] px-6 py-5 text-white shadow-lg shadow-primary/40">
       <p className="text-xs font-semibold uppercase tracking-wide text-white/80">{label}</p>
       <p className={`mt-2 text-3xl font-semibold ${accentClasses}`}>{value}</p>
     </div>
