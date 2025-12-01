@@ -7,7 +7,13 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import clsx from "clsx";
 
-const links = [
+type NavItem = {
+  href: string;
+  label: string;
+  variant?: "cta";
+};
+
+const links: NavItem[] = [
   { href: "/", label: "Home" },
   { href: "/services", label: "Services" },
   { href: "/pricing", label: "Pricing" },
@@ -15,7 +21,7 @@ const links = [
   { href: "/contact", label: "Contact" },
 ];
 
-const mobileMenuItems = [
+const mobileMenuItems: NavItem[] = [
   { href: "/auth/login", label: "Login / Signup", variant: "cta" },
   ...links,
 ];
