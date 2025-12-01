@@ -85,15 +85,23 @@ export default function DashboardPage() {
 
   const initials = useMemo(() => {
     if (!user) return "";
-    if (user.name) {
-      return user.name
-        .split(" ")
-        .filter(Boolean)
-        .slice(0, 2)
-        .map((part) => part[0]?.toUpperCase() || "")
-        .join("");
+    const source = user.name?.trim().length ? user.name : user.email.split("@")[0];
+    const parts = source
+      .split(/[\s._-]+/)
+      .filter(Boolean);
+
+    if (parts.length === 0) {
+      return user.email.charAt(0).toUpperCase();
     }
-    return user.email.charAt(0).toUpperCase();
+
+    if (parts.length === 1) {
+      return parts[0][0]?.toUpperCase() || user.email.charAt(0).toUpperCase();
+    }
+
+    return parts
+      .slice(0, 2)
+      .map((part) => part[0]?.toUpperCase() || "")
+      .join("");
   }, [user]);
 
   const upcomingCount = bookings.upcoming.length;
@@ -116,29 +124,26 @@ export default function DashboardPage() {
   return (
     <section className="min-h-screen bg-gradient-to-b from-white via-primary/5 to-white py-12">
       <div className="mx-auto max-w-5xl px-4">
-        <header className="relative flex flex-col gap-4 overflow-hidden rounded-3xl bg-white px-6 py-6 shadow-sm ring-1 ring-primary/10 sm:flex-row sm:items-center sm:justify-between">
-          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-primary to-primary/60" aria-hidden />
+        <header className="flex flex-col gap-4 overflow-hidden rounded-3xl bg-primary px-6 py-6 text-white shadow-lg shadow-primary/30 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-4">
-            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-primary text-xl font-semibold text-white shadow-lg shadow-primary/30">
+            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/20 text-xl font-semibold text-white shadow-lg shadow-primary/40">
               {initials}
             </div>
-            <h1 className="text-2xl font-semibold text-neutral-900">
+            <h1 className="text-2xl font-semibold text-white">
               {user.name || "Client"}
             </h1>
           </div>
 
           <Link
             href="/booking"
-            className="inline-flex items-center justify-center rounded-full bg-primary px-5 py-2 text-sm font-semibold text-white shadow hover:bg-primary-dark"
+            className="inline-flex items-center justify-center rounded-full bg-white px-5 py-2 text-sm font-semibold text-primary shadow hover:bg-white/90"
           >
             Book a Shoot
           </Link>
         </header>
 
         <div
-          className={`mt-8 grid gap-6 rounded-3xl bg-white/80 p-6 shadow-sm ring-1 ring-primary/5 ${
-            hasBookings ? "md:grid-cols-3" : "md:grid-cols-1"
-          }`}
+          className={`mt-8 grid gap-6 ${hasBookings ? "md:grid-cols-3" : "md:grid-cols-1"}`}
         >
           {hasBookings && (
             <>
@@ -181,14 +186,14 @@ export default function DashboardPage() {
 
 function StatCard({ label, value, accent = "default" }: { label: string; value: number | string; accent?: "default" | "success" | "muted" }) {
   const accentClasses = {
-    default: "text-primary",
-    success: "text-green-600",
-    muted: "text-neutral-500"
+    default: "text-white",
+    success: "text-emerald-200",
+    muted: "text-white/80"
   }[accent];
 
   return (
-    <div className="rounded-2xl border border-primary/10 bg-white px-6 py-5 shadow-sm">
-      <p className="text-xs font-semibold uppercase tracking-wide text-primary">{label}</p>
+    <div className="rounded-2xl bg-primary px-6 py-5 text-white shadow-lg shadow-primary/40">
+      <p className="text-xs font-semibold uppercase tracking-wide text-white/80">{label}</p>
       <p className={`mt-2 text-3xl font-semibold ${accentClasses}`}>{value}</p>
     </div>
   );
