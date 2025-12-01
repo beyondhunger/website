@@ -216,8 +216,22 @@ function StatCard({
   if (variant === "outline") {
     return (
       <div className="rounded-2xl border-2 border-[#FF2121] bg-white px-6 py-5 text-[#FF2121] shadow-lg shadow-primary/20">
-        <p className="text-xs font-semibold uppercase tracking-wide text-[#FF2121]/70">{label}</p>
-        <p className="mt-2 text-3xl font-semibold">{value}</p>
+        <div className="flex items-center justify-between">
+          <p className="text-xs font-semibold uppercase tracking-wide text-[#FF2121]/70">{label}</p>
+          <Link
+            href="/services"
+            aria-label="Browse services"
+            className="rounded-full border border-[#FF2121]/30 px-2 py-1 text-lg transition hover:bg-[#FF2121]/10"
+          >
+            📅
+          </Link>
+        </div>
+        <div className="mt-2 text-3xl font-semibold">
+          <div className="mb-3 text-5xl text-center" aria-hidden>
+            🗓️
+          </div>
+          <p className="text-center">{value}</p>
+        </div>
       </div>
     );
   }

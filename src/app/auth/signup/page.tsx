@@ -7,6 +7,7 @@ export default function SignupPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -17,6 +18,12 @@ export default function SignupPage() {
     const name = formData.get("name")?.toString().trim() || "";
     const email = formData.get("email")?.toString().trim() || "";
     const password = formData.get("password")?.toString() || "";
+
+    if (!emailPattern.test(email)) {
+      setError("Please enter a valid email address.");
+      setIsLoading(false);
+      return;
+    }
 
     try {
       const res = await fetch("/api/auth/signup", {
@@ -30,7 +37,7 @@ export default function SignupPage() {
       if (!res.ok) {
         setError(data.error || "Signup failed");
       } else {
-        alert("Account created! Please login.");
+        alert("Account created! Please verify your email before logging in. We've sent you a link.");
         router.push("/auth/login");
       }
     } catch (err) {

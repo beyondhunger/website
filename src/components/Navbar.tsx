@@ -4,7 +4,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import clsx from "clsx";
 
 type NavItem = {
@@ -28,6 +28,7 @@ const baseMobileMenuItems: NavItem[] = [
 
 export default function Navbar() {
   const pathname = usePathname();
+  const router = useRouter();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [pressedMobileLink, setPressedMobileLink] = useState<string | null>(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -85,11 +86,20 @@ export default function Navbar() {
     if (pathname === "/dashboard") {
       return [{ href: "/contact", label: "Speak to us", variant: "cta" }];
     }
-    return [{ href: "/dashboard", label: "Dashboard", variant: "cta" }, ...links];
+    return [{ href: "/dashboard", label: "My Dashboard", variant: "cta" }, ...links];
   })();
 
+  const handleLogout = () => {
+    if (typeof window !== "undefined") {
+      window.localStorage.removeItem("bh_user");
+    }
+    setIsLoggedIn(false);
+    setIsMobileMenuOpen(false);
+    router.push("/");
+  };
+
   return (
-    <header className="sticky top-0 z-40 bg-primary shadow relative">
+    <header className="sticky top-0 z-40 bg-[#FF2121] shadow-md shadow-primary/40 relative">
       {/* full-width nav bar with some vertical padding */}
       <div className="flex w-full items-center justify-between gap-3 px-4 md:px-10 py-4">
         {/* LOGO – left corner, bigger */}
@@ -122,16 +132,24 @@ export default function Navbar() {
             pathname === "/dashboard" ? (
               <Link
                 href="/contact"
-                className="ml-4 rounded-full bg-white px-4 py-1 text-xs font-semibold uppercase tracking-wide text-primary shadow hover:bg-primary hover:text-white"
+                className="ml-2 rounded-full bg-white px-4 py-1 text-xs font-semibold uppercase tracking-wide text-primary shadow hover:bg-primary hover:text-white text-left"
               >
-                Speak to us
+                speak to us
               </Link>
             ) : (
               <Link
                 href="/dashboard"
-                className="ml-4 rounded-full bg-white px-5 py-1.5 text-sm font-semibold text-primary shadow hover:bg-primary hover:text-white"
+                className="ml-2 rounded-full bg-white px-4 py-1 text-xs font-semibold uppercase tracking-wide text-primary shadow hover:bg-primary hover:text-white"
               >
-                Dashboard
+                <span className="flex items-center gap-2">
+                  <span
+                    aria-hidden
+                    className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-primary text-[12px] font-bold text-white"
+                  >
+                    D
+                  </span>
+                  My Dashboard
+                </span>
               </Link>
             )
           ) : (
@@ -154,13 +172,29 @@ export default function Navbar() {
               : "/auth/login"
           }
           className={clsx(
-            "inline-flex items-center justify-center rounded-full border border-white/50 font-semibold text-white transition hover:bg-white/10 md:hidden",
+            "inline-flex items-center rounded-full border border-white/50 font-semibold text-white transition hover:bg-white/10 md:hidden",
             isLoggedIn && pathname === "/dashboard"
-              ? "px-4 py-1.5 text-sm uppercase tracking-wide"
-              : "px-5 py-2 text-base"
+              ? "px-4 py-1.5 text-xs uppercase tracking-wide text-left ml-1"
+              : "px-4 py-1 text-sm uppercase tracking-wide"
           )}
         >
-          {isLoggedIn ? (pathname === "/dashboard" ? "Speak to us" : "Dashboard") : "Login"}
+          {isLoggedIn ? (
+            pathname === "/dashboard" ? (
+              "speak to us"
+            ) : (
+              <span className="flex items-center gap-2">
+                <span
+                  aria-hidden
+                  className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-primary text-[12px] font-bold text-white"
+                >
+                  D
+                </span>
+                My Dashboard
+              </span>
+            )
+          ) : (
+            "Login"
+          )}
         </Link>
 
         {/* MOBILE PROFILE / MENU BUTTON */}
@@ -208,6 +242,30 @@ export default function Navbar() {
                 {item.label}
               </Link>
             ))}
+            {isLoggedIn && (
+              <>
+                <Link
+                  href="/dashboard"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="w-full rounded-xl border border-primary/15 px-4 py-3 text-left text-primary transition hover:bg-primary/10"
+                >
+                  <span className="flex items-center gap-2">
+                    <span aria-hidden className="text-primary">📋</span>
+                    Manage activity
+                  </span>
+                </Link>
+                <button
+                  type="button"
+                  onClick={handleLogout}
+                  className="w-full rounded-xl border border-black/30 px-4 py-3 text-left text-red-600 transition hover:bg-red-50"
+                >
+                  <span className="flex items-center gap-2">
+                    <span aria-hidden className="text-red-500">⏻</span>
+                    Logout
+                  </span>
+                </button>
+              </>
+            )}
           </nav>
         </div>
       )}
