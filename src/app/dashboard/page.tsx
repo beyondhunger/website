@@ -112,18 +112,17 @@ export default function DashboardPage() {
   }
 
   return (
-    <section className="min-h-screen bg-neutral-50 py-12">
+    <section className="min-h-screen bg-gradient-to-b from-white via-primary/5 to-white py-12">
       <div className="mx-auto max-w-5xl px-4">
-        <header className="flex flex-col gap-4 rounded-3xl bg-white px-6 py-6 shadow-sm sm:flex-row sm:items-center sm:justify-between">
+        <header className="relative flex flex-col gap-4 overflow-hidden rounded-3xl bg-white px-6 py-6 shadow-sm ring-1 ring-primary/10 sm:flex-row sm:items-center sm:justify-between">
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-primary to-primary/60" aria-hidden />
           <div className="flex items-center gap-4">
-            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-xl font-semibold text-primary">
+            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-primary text-xl font-semibold text-white shadow-lg shadow-primary/30">
               {initials}
             </div>
-            <div>
-              <p className="text-sm uppercase tracking-wide text-neutral-500">Client Profile</p>
-              <h1 className="text-2xl font-semibold text-neutral-900">{user.name || "Client"}</h1>
-              <p className="text-sm text-neutral-500">{user.email}</p>
-            </div>
+            <h1 className="text-2xl font-semibold text-neutral-900">
+              {user.name || "Client"}
+            </h1>
           </div>
 
           <Link
@@ -134,29 +133,31 @@ export default function DashboardPage() {
           </Link>
         </header>
 
-        <div className="mt-8 grid gap-6 rounded-3xl bg-white p-6 shadow-sm md:grid-cols-3">
+        <div className="mt-8 grid gap-6 rounded-3xl bg-white/80 p-6 shadow-sm ring-1 ring-primary/5 md:grid-cols-3">
           <StatCard label="Upcoming Bookings" value={upcomingCount} />
           <StatCard label="Previous Bookings" value={previousCount} />
           <StatCard label="Status" value={upcomingCount > 0 ? "Active" : "No Active Bookings"} accent={upcomingCount > 0 ? "success" : "muted"} />
         </div>
 
-        <div className="mt-10 grid gap-6 md:grid-cols-2">
-          <BookingSection
-            title="Upcoming Bookings"
-            description="Keep track of what’s coming next."
-            items={bookings.upcoming}
-            emptyText="No upcoming bookings yet."
-            loading={isFetchingBookings}
-          />
+        {(upcomingCount > 0 || previousCount > 0) && (
+          <div className="mt-10 grid gap-6 md:grid-cols-2">
+            <BookingSection
+              title="Upcoming Bookings"
+              description="Keep track of what’s coming next."
+              items={bookings.upcoming}
+              emptyText="No upcoming bookings yet."
+              loading={isFetchingBookings}
+            />
 
-          <BookingSection
-            title="Previous Bookings"
-            description="A look back at the sessions you’ve completed."
-            items={bookings.previous}
-            emptyText="No previous bookings yet."
-            loading={isFetchingBookings}
-          />
-        </div>
+            <BookingSection
+              title="Previous Bookings"
+              description="A look back at the sessions you’ve completed."
+              items={bookings.previous}
+              emptyText="No previous bookings yet."
+              loading={isFetchingBookings}
+            />
+          </div>
+        )}
 
         {error && <p className="mt-6 rounded-2xl bg-red-50 px-4 py-3 text-sm text-red-600">{error}</p>}
       </div>
@@ -172,8 +173,8 @@ function StatCard({ label, value, accent = "default" }: { label: string; value: 
   }[accent];
 
   return (
-    <div className="rounded-2xl bg-neutral-50 px-6 py-5">
-      <p className="text-sm uppercase tracking-wide text-neutral-500">{label}</p>
+    <div className="rounded-2xl border border-primary/10 bg-white px-6 py-5 shadow-sm">
+      <p className="text-xs font-semibold uppercase tracking-wide text-primary">{label}</p>
       <p className={`mt-2 text-3xl font-semibold ${accentClasses}`}>{value}</p>
     </div>
   );
@@ -193,7 +194,7 @@ function BookingSection({
   loading: boolean;
 }) {
   return (
-    <div className="rounded-3xl bg-white p-6 shadow-sm">
+    <div className="rounded-3xl border border-primary/10 bg-white p-6 shadow-sm">
       <div className="flex items-start justify-between">
         <div>
           <h2 className="text-lg font-semibold text-neutral-900">{title}</h2>
@@ -209,7 +210,7 @@ function BookingSection({
         )}
 
         {items.map((booking) => (
-          <article key={booking.id} className="rounded-2xl border border-neutral-100 px-4 py-4">
+          <article key={booking.id} className="rounded-2xl border border-neutral-100 bg-primary/5 px-4 py-4">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-neutral-500">{new Date(booking.date).toLocaleDateString()} · {booking.location}</p>

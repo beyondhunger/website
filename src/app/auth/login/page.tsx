@@ -10,10 +10,12 @@ export default function LoginPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError(null);
+    setSuccessMessage(null);
     setIsLoading(true);
 
     const formData = new FormData(e.currentTarget);
@@ -36,7 +38,7 @@ export default function LoginPage() {
           window.localStorage.setItem("bh_user", JSON.stringify(data.user));
         }
 
-        alert("Login successful!");
+        setSuccessMessage("Login successful! Redirecting...");
         router.push("/dashboard");
       }
     } catch (err) {
@@ -80,6 +82,11 @@ export default function LoginPage() {
           </div>
 
           {error && <p className="text-sm text-red-600">{error}</p>}
+          {successMessage && (
+            <p className="rounded-md bg-green-50 px-3 py-2 text-sm text-green-700">
+              {successMessage}
+            </p>
+          )}
 
           <button
             type="submit"

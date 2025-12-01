@@ -21,7 +21,7 @@ const links: NavItem[] = [
   { href: "/contact", label: "Contact" },
 ];
 
-const mobileMenuItems: NavItem[] = [
+const baseMobileMenuItems: NavItem[] = [
   { href: "/auth/login", label: "Login / Signup", variant: "cta" },
   ...links,
 ];
@@ -30,7 +30,33 @@ export default function Navbar() {
   const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [pressedMobileLink, setPressedMobileLink] = useState<string | null>(null);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const prevPathnameRef = useRef(pathname);
+
+  useEffect(() => {
+    const checkAuth = () => {
+      if (typeof window === "undefined") return;
+      const stored = window.localStorage.getItem("bh_user");
+      setIsLoggedIn(Boolean(stored));
+    };
+
+    checkAuth();
+    if (typeof window !== "undefined") {
+      window.addEventListener("storage", checkAuth);
+    }
+
+    return () => {
+      if (typeof window !== "undefined") {
+        window.removeEventListener("storage", checkAuth);
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const stored = window.localStorage.getItem("bh_user");
+    setIsLoggedIn(Boolean(stored));
+  }, [pathname]);
 
   useEffect(() => {
     if (!isMobileMenuOpen) return;
@@ -53,6 +79,14 @@ export default function Navbar() {
       }, 180);
     }
   };
+
+  const mobileMenuItems: NavItem[] = (() => {
+    if (!isLoggedIn) return baseMobileMenuItems;
+    if (pathname === "/dashboard") {
+      return [{ href: "/contact", label: "Speak to us", variant: "cta" }];
+    }
+    return [{ href: "/dashboard", label: "Dashboard", variant: "cta" }, ...links];
+  })();
 
   return (
     <header className="sticky top-0 z-40 bg-primary shadow relative">
@@ -83,21 +117,45 @@ export default function Navbar() {
             </Link>
           ))}
 
-        {/* SINGLE LOGIN / SIGNUP BUTTON */}
-        <Link
-          href="/auth/login"
-          className="ml-4 rounded-full bg-white px-5 py-1.5 text-sm font-semibold text-primary shadow hover:bg-primary hover:text-white"
-        >
-          Login / Signup
-        </Link>
-      </nav>
+          {/* SINGLE LOGIN / SIGNUP BUTTON */}
+          {isLoggedIn ? (
+            pathname === "/dashboard" ? (
+              <Link
+                href="/contact"
+                className="ml-4 rounded-full bg-white px-5 py-1.5 text-sm font-semibold text-primary shadow hover:bg-primary hover:text-white"
+              >
+                Speak to us
+              </Link>
+            ) : (
+              <Link
+                href="/dashboard"
+                className="ml-4 rounded-full bg-white px-5 py-1.5 text-sm font-semibold text-primary shadow hover:bg-primary hover:text-white"
+              >
+                Dashboard
+              </Link>
+            )
+          ) : (
+            <Link
+              href="/auth/login"
+              className="ml-4 rounded-full bg-white px-5 py-1.5 text-sm font-semibold text-primary shadow hover:bg-primary hover:text-white"
+            >
+              Login / Signup
+            </Link>
+          )}
+        </nav>
 
-        {/* MOBILE LOGIN / SIGNUP QUICK CTA */}
+        {/* MOBILE CTA */}
         <Link
-          href="/auth/login"
+          href={
+            isLoggedIn
+              ? pathname === "/dashboard"
+                ? "/contact"
+                : "/dashboard"
+              : "/auth/login"
+          }
           className="inline-flex items-center justify-center rounded-full border border-white/50 px-5 py-2 text-base font-semibold text-white transition hover:bg-white/10 md:hidden"
         >
-          Login
+          {isLoggedIn ? (pathname === "/dashboard" ? "Speak to us" : "Dashboard") : "Login"}
         </Link>
 
         {/* MOBILE PROFILE / MENU BUTTON */}
