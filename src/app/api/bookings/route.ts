@@ -61,3 +61,46 @@ export async function POST(req: NextRequest) {
     );
   }
 }
+
+export async function GET(req: NextRequest) {
+  try {
+    const { searchParams } = new URL(req.url);
+    const userId = searchParams.get("userId");
+
+    if (!userId) {
+      return NextResponse.json(
+        { error: "userId is required" },
+        { status: 400 }
+      );
+    }
+
+    const bookings = await prisma.booking.findMany({
+      where: { userId },
+      include: { service: true },
+      orderBy: { date: "asc" }
+    });
+
+    const now = new Date();
+    const formatted = bookings.map((booking) => ({
+      id: booking.id,
+      date: booking.date,
+      location: booking.location,
+      status: booking.status,
+      service: {
+        id: booking.service.id,
+        name: booking.service.name
+      }
+    }));
+
+    const previous = formatted.filter((booking) => new Date(booking.date) < now);
+    const upcoming = formatted.filter((booking) => new Date(booking.date) >= now);
+
+    return NextResponse.json({ previous, upcoming });
+  } catch (error) {
+    console.error("Failed to fetch bookings:", error);
+    return NextResponse.json(
+      { error: "Failed to fetch bookings" },
+      { status: 500 }
+    );
+  }
+}
