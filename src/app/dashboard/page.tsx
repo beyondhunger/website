@@ -98,6 +98,8 @@ export default function DashboardPage() {
 
   const upcomingCount = bookings.upcoming.length;
   const previousCount = bookings.previous.length;
+  const hasBookings = upcomingCount > 0 || previousCount > 0;
+  const statusAccent = upcomingCount > 0 ? "success" : "muted";
 
   if (isLoadingUser) {
     return (
@@ -133,13 +135,25 @@ export default function DashboardPage() {
           </Link>
         </header>
 
-        <div className="mt-8 grid gap-6 rounded-3xl bg-white/80 p-6 shadow-sm ring-1 ring-primary/5 md:grid-cols-3">
-          <StatCard label="Upcoming Bookings" value={upcomingCount} />
-          <StatCard label="Previous Bookings" value={previousCount} />
-          <StatCard label="Status" value={upcomingCount > 0 ? "Active" : "No Active Bookings"} accent={upcomingCount > 0 ? "success" : "muted"} />
+        <div
+          className={`mt-8 grid gap-6 rounded-3xl bg-white/80 p-6 shadow-sm ring-1 ring-primary/5 ${
+            hasBookings ? "md:grid-cols-3" : "md:grid-cols-1"
+          }`}
+        >
+          {hasBookings && (
+            <>
+              <StatCard label="Upcoming Bookings" value={upcomingCount} />
+              <StatCard label="Previous Bookings" value={previousCount} />
+            </>
+          )}
+          <StatCard
+            label="Status"
+            value={upcomingCount > 0 ? "Active" : "No Active Bookings"}
+            accent={statusAccent}
+          />
         </div>
 
-        {(upcomingCount > 0 || previousCount > 0) && (
+        {hasBookings && (
           <div className="mt-10 grid gap-6 md:grid-cols-2">
             <BookingSection
               title="Upcoming Bookings"

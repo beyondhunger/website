@@ -122,7 +122,7 @@ export default function Navbar() {
             pathname === "/dashboard" ? (
               <Link
                 href="/contact"
-                className="ml-4 rounded-full bg-white px-5 py-1.5 text-sm font-semibold text-primary shadow hover:bg-primary hover:text-white"
+                className="ml-4 rounded-full bg-white px-4 py-1 text-xs font-semibold uppercase tracking-wide text-primary shadow hover:bg-primary hover:text-white"
               >
                 Speak to us
               </Link>
@@ -153,7 +153,12 @@ export default function Navbar() {
                 : "/dashboard"
               : "/auth/login"
           }
-          className="inline-flex items-center justify-center rounded-full border border-white/50 px-5 py-2 text-base font-semibold text-white transition hover:bg-white/10 md:hidden"
+          className={clsx(
+            "inline-flex items-center justify-center rounded-full border border-white/50 font-semibold text-white transition hover:bg-white/10 md:hidden",
+            isLoggedIn && pathname === "/dashboard"
+              ? "px-4 py-1.5 text-sm uppercase tracking-wide"
+              : "px-5 py-2 text-base"
+          )}
         >
           {isLoggedIn ? (pathname === "/dashboard" ? "Speak to us" : "Dashboard") : "Login"}
         </Link>
